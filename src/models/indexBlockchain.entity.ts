@@ -1,28 +1,18 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
-export interface IIndexBlockchain {
-  id: string;
-  name: string;
-  ethPriceInWei: number;
-  usdPriceInCents: number;
-  usdCapitalization: number;
-  percentageChange: number;
-}
+@Entity()
+export class IndexBlockchain extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-@Entity({ schema: 'public' })
-export class IndexBlockchain implements IIndexBlockchain {
-  constructor(id: string) {
-    this.id = id;
-  }
-
-  @PrimaryColumn()
-  id: string;
+  @Column()
+  indexId: number;
 
   @Column()
   name: string;
 
   @Column()
-  ethPriceInWei: number;
+  ethPriceInWei: string;
 
   @Column()
   percentageChange: number;

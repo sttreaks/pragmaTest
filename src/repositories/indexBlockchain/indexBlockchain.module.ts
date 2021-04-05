@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database';
 import { indexBlockchainProviders } from './indexBlockchain.providers';
-import { IndexBlockchainService } from './indexBlockchain.service';
+import { IndexBlockchainRepository } from './indexBlockchain.repository';
 
 @Module({
   imports: [DatabaseModule],
-  providers: [...indexBlockchainProviders, IndexBlockchainService],
-  exports: [IndexBlockchainService],
+  providers: [...indexBlockchainProviders, IndexBlockchainRepository],
+  exports: [IndexBlockchainRepository],
 })
 export class IndexBlockchainModule {}
