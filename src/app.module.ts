@@ -1,17 +1,12 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { connectionOptions } from './database/ormconfig';
+
+import { GroupModule, IndexBlockchainModule } from './repositories';
 
 @Module({
-  imports: [
-    CacheModule.register(),
-    TypeOrmModule.forRoot({
-      ...connectionOptions,
-      autoLoadEntities: true,
-    }),
-  ],
+  imports: [GroupModule, IndexBlockchainModule],
   controllers: [AppController],
   providers: [AppService],
 })
