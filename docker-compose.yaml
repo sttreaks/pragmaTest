@@ -1,0 +1,10 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:10.5
+    ports:
+      - 9090:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=pragma
