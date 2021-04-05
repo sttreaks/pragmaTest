@@ -7,9 +7,7 @@ export class AppController {
 
   @Get('group-ids')
   async getGroupIds(): Promise<JSON> {
-    const groupIds = await this.appService.getGroupIds();
-
-    return groupIds;
+    return await this.appService.getGroupIds();
   }
 
   @Get('group/:groupId')
@@ -23,9 +21,7 @@ export class AppController {
   }
 
   @Get('last-block')
-  async getLastBlock(): Promise<Object> {
-    const lastBlock = await this.appService.getLastBlock();
-
-    return lastBlock;
+  async getLastBlock(): Promise<JSON> {
+    return await this.appService.getLastBlock();
   }
 }

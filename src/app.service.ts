@@ -1,13 +1,21 @@
 import Web3 from 'web3';
 import { Injectable, CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { ADDRESS, CACHE_TTL, PROVIDER } from './config';
-import { ABI } from './config/abi';
+import * as env from 'dotenv';
+
+env.config();
+
+const config = {
+  address: process.env.ADDRESS,
+  provider: process.env.PROVIDER,
+  cache_ttl: process.env.CACHE_TTL,
+  abi: JSON.parse(process.env.ABI),
+};
 
 @Injectable()
 export class AppService {
-  private web3 = new Web3(PROVIDER);
-  private contract = new this.web3.eth.Contract(ABI, ADDRESS);
+  private web3 = new Web3(config.provider);
+  private contract = new this.web3.eth.Contract(config.abi, config.address);
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
@@ -16,7 +24,9 @@ export class AppService {
 
     if (!groupIds) {
       groupIds = await this.contract.methods.getGroupIds().call();
-      await this.cacheManager.set('GroupId', groupIds, { ttl: CACHE_TTL });
+      await this.cacheManager.set('GroupIds', groupIds, {
+        ttl: config.cache_ttl,
+      });
     }
 
     return groupIds;
@@ -27,7 +37,7 @@ export class AppService {
 
     if (!group) {
       group = await this.contract.methods.getGroup(groupId).call();
-      await this.cacheManager.set(groupId, group, { ttl: CACHE_TTL });
+      await this.cacheManager.set(groupId, group, { ttl: config.cache_ttl });
     }
 
     return group;
@@ -38,18 +48,18 @@ export class AppService {
 
     if (!index) {
       index = await this.contract.methods.getIndex(indexId).call();
-      await this.cacheManager.set(indexId, index, { ttl: CACHE_TTL });
+      await this.cacheManager.set(indexId, index, { ttl: config.cache_ttl });
     }
 
     return index;
   }
 
-  async getLastBlock(): Promise<Object> {
+  async getLastBlock(): Promise<JSON> {
     let latest = await this.cacheManager.get('latest');
 
     if (!latest) {
       latest = await this.web3.eth.getBlock('latest');
-      await this.cacheManager.set('latest', latest, { ttl: CACHE_TTL });
+      await this.cacheManager.set('latest', latest, { ttl: config.cache_ttl });
     }
 
     return latest;
