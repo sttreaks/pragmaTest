@@ -1,13 +1,13 @@
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
 @Entity()
-export class Group extends BaseEntity {
+export class GroupIndex extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  groupId: number;
+  group: number;
 
   @Column()
-  name: string;
+  index: number;
 }

@@ -1,67 +1,75 @@
 import Web3 from 'web3';
-import { Injectable, CACHE_MANAGER, Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { Injectable } from '@nestjs/common';
 import * as env from 'dotenv';
+
+import { GroupIndexDto } from './interfaces/groupIndex.dto';
+import { IndexBlockchainDto } from './interfaces/IndexBlockchain.dto';
+import { Group } from './models/group.entity';
+import { GroupIndex } from './models/groupIndexes.entity';
+import { IndexBlockchain } from './models/indexBlockchain.entity';
 
 env.config();
 
 const config = {
   address: process.env.ADDRESS,
   provider: process.env.PROVIDER,
-  cache_ttl: process.env.CACHE_TTL,
   abi: JSON.parse(process.env.ABI),
 };
 
 @Injectable()
 export class AppService {
   private web3 = new Web3(config.provider);
-  private contract = new this.web3.eth.Contract(config.abi, config.address);
+  private contract = new this.web3.eth.Contract(config.abi, config.address)
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor() {}
 
-  async getGroupIds(): Promise<JSON> {
-    let groupIds = await this.cacheManager.get('GroupId');
+  async getGroupIdsService (): Promise<number[]> {
+    const groupIds = await this.contract.methods.getGroupIds().call();
+    return groupIds.map(groupId => parseInt(groupId));
+  }
 
-    if (!groupIds) {
-      groupIds = await this.contract.methods.getGroupIds().call();
-      await this.cacheManager.set('GroupIds', groupIds, {
-        ttl: config.cache_ttl,
+  async getGroupService (groupId: number): Promise<GroupIndexDto | String> {
+    try {
+      const group: GroupIndexDto = await this.contract.methods.getGroup(groupId).call();
+
+      const groupSave = new Group();
+      groupSave.groupId = groupId;
+      groupSave.name = group.name;
+      await groupSave.save();
+
+      group.indexes.forEach(async index => {
+        const groupIndexSave = new GroupIndex();
+        groupIndexSave.index = index;
+        groupIndexSave.group = groupId;
+        await groupIndexSave.save();
       });
-    }
 
-    return groupIds;
+      return group;
+    } catch (e) {
+      return "Uncorrected request parameters";
+    }
   }
 
-  async getGroup(groupId): Promise<JSON> {
-    let group = await this.cacheManager.get(groupId);
+  async getIndexService (indexId): Promise<IndexBlockchainDto | String> {
+    try {
+      const index: IndexBlockchainDto = await this.contract.methods.getIndex(indexId).call();
 
-    if (!group) {
-      group = await this.contract.methods.getGroup(groupId).call();
-      await this.cacheManager.set(groupId, group, { ttl: config.cache_ttl });
+      const indexBlockchainSave = new IndexBlockchain();
+      indexBlockchainSave.indexId = indexId;
+      indexBlockchainSave.name = index.name;
+      indexBlockchainSave.ethPriceInWei = index.ethPriceInWei;
+      indexBlockchainSave.usdPriceInCents = index.usdPriceInCents;
+      indexBlockchainSave.usdCapitalization = index.usdCapitalization;
+      indexBlockchainSave.percentageChange = index.percentageChange;
+      await indexBlockchainSave.save();
+
+      return index;
+    } catch (e) {
+      return "Uncorrected request parameters";
     }
-
-    return group;
   }
 
-  async getIndex(indexId): Promise<JSON> {
-    let index = await this.cacheManager.get(indexId);
-
-    if (!index) {
-      index = await this.contract.methods.getIndex(indexId).call();
-      await this.cacheManager.set(indexId, index, { ttl: config.cache_ttl });
-    }
-
-    return index;
-  }
-
-  async getLastBlock(): Promise<JSON> {
-    let latest = await this.cacheManager.get('latest');
-
-    if (!latest) {
-      latest = await this.web3.eth.getBlock('latest');
-      await this.cacheManager.set('latest', latest, { ttl: config.cache_ttl });
-    }
-
-    return latest;
+  async getLastBlock(): Promise<Object> {
+    return await this.web3.eth.getBlock('latest');
   }
 }

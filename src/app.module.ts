@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { GroupModule, IndexBlockchainModule } from './repositories';
 import connectionOptions = require('./database/ormconfig');
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GroupIndexModule } from './repositories/groupIndex';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRoot(connectionOptions),
     GroupModule,
     IndexBlockchainModule,
+    GroupIndexModule,
   ],
   controllers: [AppController],
   providers: [AppService],
