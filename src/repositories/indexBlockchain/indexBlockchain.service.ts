@@ -1,7 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository, QueryRunner } from 'typeorm';
 
-import { IndexBlockchain, IIndexBlockchain } from '../../models/indexBlockchain.entity';
+import {
+  IndexBlockchain,
+  IIndexBlockchain,
+} from '../../models/indexBlockchain.entity';
 import { REPOSITORIES } from '../../constants';
 import { PUBLIC_TABLES } from '../../database';
 import { getParamValues } from '../utils';
@@ -24,7 +27,7 @@ export class IndexBlockchainService {
     return rawData?.[0];
   }
 
-  async addIndexBlockchain (
+  async addIndexBlockchain(
     index: IIndexBlockchain,
     queryRunner: QueryRunner = this.repository.queryRunner,
   ): Promise<void> {

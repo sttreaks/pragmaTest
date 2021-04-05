@@ -1,6 +1,9 @@
 import Web3 from 'web3';
 import { Injectable, CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
+import * as env from 'dotenv';
+
+env.config();
 
 const config = {
   address: process.env.ADDRESS,
